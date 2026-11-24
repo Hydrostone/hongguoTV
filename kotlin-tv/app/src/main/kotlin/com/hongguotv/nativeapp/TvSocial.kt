@@ -86,6 +86,11 @@ class TvSocial(
         updateOverlayRows()
     }
 
+    /** 让弹幕层跟随画面一起旋转，保持与视频方向一致。 */
+    fun rotation(degrees: Int) {
+        overlay?.rotation = degrees.toFloat()
+    }
+
     fun foreground(value: Boolean) {
         active = value
         main.removeCallbacks(tick)
@@ -275,7 +280,7 @@ class TvSocial(
             }
             "密度：$density"
         })
-        numberOption("font", DEFAULT_FONT_DP, 16..40 step 4, { "字号：$it" })
+        numberOption("font", DEFAULT_FONT_DP, 10..40 step 2, { "字号：$it" })
         numberOption("alpha", DEFAULT_OPACITY, 20..100 step 5, { "不透明度：$it%" })
         numberOption("travel", DEFAULT_TRAVEL_MS, listOf(5000, 7000, 9000, 12000, 15000),
             { "滚动时长：${it / 1000} 秒" })
@@ -283,7 +288,7 @@ class TvSocial(
             prefs.edit().putBoolean("avoidOverlap", !prefs.getBoolean("avoidOverlap", true)).apply()
         }
         val advanced = section("更多设置")
-        numberOption("lanes", 0, 0..MAX_LANES step 2,
+        numberOption("lanes", 0, 0..MAX_LANES step 1,
             { "精确行数：${if (it > 0) "$it 行" else "自动"}" }, advanced)
         numberOption("lineHeight", DEFAULT_LINE_HEIGHT_TENTHS, 12..20 step 2,
             { "弹幕行高：${it / 10f}×" }, advanced)
@@ -545,7 +550,7 @@ class TvSocial(
         }
 
         fun updateLayout() {
-            val textSizePx = dp(prefs.getInt("font", DEFAULT_FONT_DP).coerceIn(16, 40))
+            val textSizePx = dp(prefs.getInt("font", DEFAULT_FONT_DP).coerceIn(10, 40))
             val strokePx = dp(prefs.getInt("stroke", DEFAULT_STROKE_DP).coerceIn(0, 3))
             val alpha = prefs.getInt("alpha", DEFAULT_OPACITY).coerceIn(20, 100) * 255 / 100
             fill.textSize = textSizePx.toFloat()
@@ -560,7 +565,7 @@ class TvSocial(
             lineHeightPx = maxOf(textHeightPx, (textSizePx * lineHeightTenths + 9) / 10)
             region = DanmakuArea.fromPreference(prefs.getString("area", null)).region(
                 viewHeightPx = height,
-                topInsetPx = minOf(dp(65), height / 8),
+                topInsetPx = minOf(dp(4), height / 8),
                 bottomInsetPx = minOf(dp(44), height / 8),
                 textHeightPx = textHeightPx,
             )
