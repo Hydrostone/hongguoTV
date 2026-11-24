@@ -11,13 +11,13 @@ import zipfile
 import importlib.util
 from pathlib import Path
 
-REPOSITORY = 'N3urda/hongguoTV'
+REPOSITORY = 'Hydrostone/hongguoTV'
 PACKAGE = 'com.hongguotv.nativeapp'
-CERTIFICATE = '3579f7a8a91bbbc44688db60fb16a5561921784af23fa92f39b849086d76ca98'
+CERTIFICATE = '37fee9ab35ef285f0f1aa8a34d765cc6c5bb101499c9d5eaf1e3a62219af15fb'
 ROOT = Path(__file__).resolve().parents[1]
 NOTES = (
-    '- 修复部分剧集提示“播放接口返回空响应”后无法播放的问题（#102）。使用纯 Kotlin 播放签名并更新 App 取流请求，无需官方 App、原生签名 SDK 或额外签名服务。\n'
-    '- 为仅返回不兼容编码的剧集增加 App 模型提供的兼容编码回退，继续由电视直接播放 CDN 视频，不使用官网兜底。\n'
+    '- 基于上游 0.16.14 源码构建，使用 Vida 固定密钥签名，可覆盖安装并保留本机记录。\n'
+    '- 更新检查与下载指向本项目 Release，设备端每日自动检查，也可手动触发。\n'
     '- 提供 Android 5 兼容版、Android 6+ 通用版及 ARM32 / ARM64 专用版四种安装包。'
 )
 
