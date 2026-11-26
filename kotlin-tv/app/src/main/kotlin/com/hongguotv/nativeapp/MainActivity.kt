@@ -447,6 +447,8 @@ class MainActivity : Activity() {
     private var player: ExoPlayer? = null
     private var video: RemoteVideo? = null
     private var playbackEpisodeId = ""
+    // 断网续播时详情页不可用，只能从下载元数据还原真实集数。
+    private var offlinePlaybackEpisode = 0
     private val offline by lazy {
         OfflineDownloads(this, repository.http).also { downloads ->
             downloads.onComplete = {
@@ -2624,6 +2626,7 @@ class MainActivity : Activity() {
         phonePlayback = fromPhone
         directPlayback = resume && !fromHome
         detail = null
+        offlinePlaybackEpisode = 0
         synopsisExpanded = false
         val body = base(series.title)
         message(body, "正在加载剧集…")
@@ -2676,6 +2679,7 @@ class MainActivity : Activity() {
                 if (cachedId != null) {
                     detail = Detail(series, listOf(cachedId))
                     episodeIndex = 0
+                    offlinePlaybackEpisode = offline.episodeNumber(cachedId)
                     val progress = library.progress(series.id)
                     playEpisode(
                         0,
@@ -3179,7 +3183,7 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
             )
         }
-        playbackTitle.text = "${data.series.title}  ·  第 ${episodeIndex+1} 集"
+        playbackTitle.text = "${data.series.title}  ·  第 ${playingEpisodeNumber()} 集"
         playbackText.text = preparingPlaybackText(recoveryDisplayActive, lastPlaybackFailure, false)
         progressBar.progress = 0
         progressBar.visibility = View.VISIBLE
@@ -3635,6 +3639,10 @@ class MainActivity : Activity() {
         }
     }
 
+    /** 播放中显示的集数：断网续播的本地集用下载时记录的集数。 */
+    private fun playingEpisodeNumber() =
+        if (offlinePlaybackEpisode > 0) offlinePlaybackEpisode else episodeIndex + 1
+
     private fun queuePreparedEpisode(key: String) {
         val p = player ?: return
         val data = detail ?: return
@@ -3735,7 +3743,7 @@ class MainActivity : Activity() {
         prefetchAttemptAt = 0
         cancelRecovery()
         recovery.reset()
-        playbackTitle.text = "${data.series.title}  ·  第 ${episodeIndex+1} 集"
+        playbackTitle.text = "${data.series.title}  ·  第 ${playingEpisodeNumber()} 集"
         if (panel && completed) {
             if (pendingEpisodeTarget == null) showPanel()
         } else {
